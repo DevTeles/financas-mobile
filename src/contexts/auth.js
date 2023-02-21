@@ -1,86 +1,92 @@
-import React, { createContext, useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import React, { useState, createContext, useEffect } from 'react';
 import firebase from '../services/firebaseConnection';
-import AyncStorage from '@react-native-community/async-storage';
-import { storage } from 'firebase';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export const AuthContext = createContext({});
 
-function AuthProvider({ children }) {
+function AuthProvider({ children }){
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        async function loadStorage() {
-            const storageUser = await AyncStorage.getItem('Auth_user');
+    useEffect(()=> {
+       async function loadStorage(){
+           const storageUser = await AsyncStorage.getItem('Auth_user');
 
-            if (storageUser) {
-                setUser(JSON.parse(storageUser));
-                setLoading(false);
-            }
-            setLoading(false);
-        }
+           if(storageUser){
+               setUser(JSON.parse(storageUser));
+               setLoading(false);
+           }
 
-        loadStorage();
-    }, [])
+           setLoading(false);
+       }
+       
+       loadStorage();
+    }, []);
 
-    async function signIn(email, password) {
-        await firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(async (value) => {
+    //Funcao para logar o usario
+    async function signIn(email, password){
+        await firebase.auth().signInWithEmailAndPassword(email,password)
+        .then(async (value)=>{
             let uid = value.user.uid;
             await firebase.database().ref('users').child(uid).once('value')
-            .then((snapshot) => {
+            .then((snapshot)=>{
                 let data = {
-                    uid: uid,
-                    nome: snapshot.val().nome,
-                    email: value.user.email,
+                  uid: uid,
+                  nome: snapshot.val().nome,
+                  email: value.user.email,
                 };
 
                 setUser(data);
                 storageUser(data);
             })
         })
-        .catch((error) => {
-            Alert.alert('Error:', error.code);
-        })
+        .catch((error)=> {
+            alert(error.code);
+        });
     }
-
-    async function signUp(email, password, nome) {
-        await firebase.auth().createUserWithEmailAndPassword(email, password)
-        .then(async (value) => {
+    
+    //Cadastrar usuario
+    async function signUp(email, password, nome){
+        await firebase.auth().createUserWithEmailAndPassword(email,password)
+        .then(async (value)=>{
             let uid = value.user.uid;
             await firebase.database().ref('users').child(uid).set({
                 saldo: 0,
                 nome: nome
             })
-            .then(() => {
+            .then(()=>{
                 let data = {
                     uid: uid,
-                    noime: nome,
+                    nome: nome,
                     email: value.user.email,
                 };
                 setUser(data);
                 storageUser(data);
             })
         })
+        .catch((error)=> {
+            alert(error.code);
+        });
     }
 
-    async function storageUser(data) {
-        await AyncStorage.setItem('Auth_user', JSON.stringify(data));
-    }   
+    async function storageUser(data){
+        await AsyncStorage.setItem('Auth_user', JSON.stringify(data));
+    }
 
-    async function signOut() {
+
+    async function signOut(){
         await firebase.auth().signOut();
-        await AyncStorage.clear()
-        .then(() => {
-            setUser(null);
+        await AsyncStorage.clear()
+        .then( () => {
+           setUser(null); 
         })
+
     }
 
-    return (
-        <AuthContext.Provider value={{ signed: !!user , user, loading, signUp, signIn, signOut }}>
-            {children}
-        </AuthContext.Provider>
+    return(
+     <AuthContext.Provider value={{ signed: !!user , user, loading, signUp, signIn, signOut }}>
+         {children}
+     </AuthContext.Provider>   
     );
 }
 

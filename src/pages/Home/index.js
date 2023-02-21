@@ -23,7 +23,7 @@ const Home = () => {
     <Background>
       <Header />
         <Container>
-          <Name>{user.nome}</Name>
+          <Name>{user && user.nome}</Name>
           <Saldo>R$ 123,00</Saldo>
         </Container>
 

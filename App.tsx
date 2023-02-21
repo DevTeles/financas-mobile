@@ -6,6 +6,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import AuthProvider from './src/contexts/auth'
 
 const App: React.FC = () => {
+
   return (
     <NavigationContainer>
       <StatusBar backgroundColor="#131313" barStyle="light-content" />   

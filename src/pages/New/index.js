@@ -3,7 +3,7 @@ import React, { useContext, useState } from 'react';
 import { Alert, Keyboard, SafeAreaView, TouchableWithoutFeedback } from 'react-native';
 import { format } from 'date-fns'
 import Header from '../../components/Header';
-import Picker from '../../components/Picker/index.android';
+import Picker from '../../components/Picker';
 
 import { Background, Input, SubmitButton, SubmitText } from './styles';
 import { useNavigation } from '@react-navigation/native';
@@ -14,12 +14,12 @@ const New = () => {
   const [tipo, setTipo] = useState(null);
   const { user: usuario } = useContext(AuthContext)
 
-  const navigate = useNavigation();  
+  const navigation = useNavigation();  
 
   function handleSubmit() {
     Keyboard.dismiss();    
     if(isNaN(parseFloat(valor)) || tipo === null){
-      alert('Preencha todos os campos!')
+      alert('Preencha todos os campos!');
       return;
     }
 
@@ -48,7 +48,7 @@ const New = () => {
       tipo: tipo,
       valor: parseFloat(valor),
       date: format(new Date(), 'dd/MM/yy')
-    })
+    });
 
     //atualizar o nosso saldo
     let user = firebase.database().ref('users').child(uid);
@@ -60,9 +60,9 @@ const New = () => {
       user.child('saldo').set(saldo);
     });
 
-    setValor('');
     Keyboard.dismiss();
-    navigate.navigate('Home');
+    setValor('');
+    navigation.navigate('Home');
   }
 
   return (
