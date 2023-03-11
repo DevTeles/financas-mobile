@@ -9,8 +9,8 @@ const App: React.FC = () => {
 
   return (
     <NavigationContainer>
-      <StatusBar backgroundColor="#131313" barStyle="light-content" />   
       <AuthProvider>
+        <StatusBar backgroundColor="#131313" barStyle="light-content" />   
         <Routes />
       </AuthProvider>
     </NavigationContainer>
